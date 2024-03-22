@@ -9,11 +9,30 @@ locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
 st.set_page_config(layout='wide')
 st.title('DASHBOARD DE VENDAS :shopping_trolley:')
 
-url = 'https://labdados.com/produtos'
-response = req.get(url)
+st.sidebar.title('Filtros')
 
+regioes = ['Brasil', 'Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul']
+regiao = st.sidebar.selectbox('Região', regioes)
+
+if regiao == 'Brasil':
+    regiao = ''
+
+todos_anos = st.sidebar.checkbox('Todo o período', value=True)
+if todos_anos:
+    ano = ''
+else:
+    ano = st.sidebar.slider('Ano', 2020, 2023)
+
+qs = {'regiao': regiao.lower(), 'ano': ano}
+url = 'https://labdados.com/produtos'
+response = req.get(url, params=qs)
 dados = pd.DataFrame.from_dict(response.json())
 dados['Data da Compra'] = pd.to_datetime(dados['Data da Compra'], format='%d/%m/%Y')
+
+filtro_vendedores = st.sidebar.multiselect('Vendedor', dados['Vendedor'].unique())
+if filtro_vendedores:
+    dados = dados[dados['Vendedor'].isin(filtro_vendedores)]
+
 
 receita_estados = dados.groupby('Local da compra')[['Preço']].sum()
 receita_estados = dados.drop_duplicates(subset='Local da compra')[['Local da compra', 'lat', 'lon']].merge(receita_estados, left_on='Local da compra', right_index=True).sort_values('Preço', ascending=False,)
