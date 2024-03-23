@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import locale
 
-locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
+locale.setlocale(locale.LC_ALL, 'pt_BR')
 
 st.set_page_config(layout='wide')
 st.title('DASHBOARD DE VENDAS :shopping_trolley:')
